@@ -44,18 +44,36 @@ spec:
         }
       }
     }
-
-}
-  stages {
-
-    stage('Test') {
+	
+	stage('Test') {
       steps {
         container('maven') {
           sh 'mvn test'
         }
       }
     }
+	
+	stage('Docker') {
+	steps {
+        container('docker') {
+          sh 'docker build -t my-app:$BUILD_NUMBER .'
+        }
+      }
+	}
+	
 
+	stage('DockerLaunch') {
+	steps {
+        container('docker') {
+          sh 'docker run my-app:$BUILD_NUMBER'
+        }
+      }
+	}
+	
 }
-
+post {
+    always {
+      junit 'target/surefire-reports/*.xml'
+			}
+		 }
 }
